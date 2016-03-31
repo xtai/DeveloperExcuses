@@ -9,7 +9,7 @@
 	<key>CFBundleIconFile</key>
 	<string></string>
 	<key>CFBundleIdentifier</key>
-	<string>com.marcuskida.${PRODUCT_NAME:rfc1034identifier}</string>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -22,9 +22,17 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>1.0</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>developerexcuses.com</key>
+			<true/>
+		</dict>
+	</dict>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2013 Marcus Kida. All rights reserved.</string>
+	<string>Copyright © 2013-2016 Marcus Kida. All rights reserved.</string>
 	<key>NSPrincipalClass</key>
-	<string>DeveloperExcusesView</string>
+	<string>DeveloperExcuses.MainView</string>
 </dict>
 </plist>
