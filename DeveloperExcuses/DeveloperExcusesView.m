@@ -45,7 +45,7 @@ NSString *kHtmlRegex = @"<a href=\"/\" rel=\"nofollow\" style=\"text-decoration:
     newFrame.origin.y = (NSHeight(self.bounds) - height) / 2;
     _label.frame = newFrame;
 
-    [[NSColor whiteColor] setFill];
+    [[NSColor colorWithSRGBRed:0.129 green:0.125 blue:0.141 alpha:1] setFill];
     NSRectFill(rect);
 }
 
@@ -76,8 +76,8 @@ NSString *kHtmlRegex = @"<a href=\"/\" rel=\"nofollow\" style=\"text-decoration:
     _label.alignment = NSCenterTextAlignment;
 
     _label.stringValue = @"Loading...";
-    _label.textColor = [NSColor blackColor];
-    _label.font = [NSFont fontWithName:@"Courier" size:(self.preview ? 12.0 : 24.0)];
+    _label.textColor = [NSColor whiteColor];
+    _label.font = [NSFont fontWithName:@"Menlo-Regular" size:(self.preview ? 12.0 : 24.0)];
 
     _label.backgroundColor = [NSColor clearColor];
     [_label setEditable:NO];
