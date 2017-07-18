@@ -29,6 +29,7 @@ class DeveloperExcusesView: ScreenSaverView {
     var label: NSTextField!
     var clockLabel: NSTextField!
     var fetchingDue = true
+    var timer: Timer!
     
     override init?(frame: NSRect, isPreview: Bool) {
         super.init(frame: frame, isPreview: isPreview)
@@ -79,13 +80,14 @@ class DeveloperExcusesView: ScreenSaverView {
     }
     
     func initialize() {
-        animationTimeInterval = 5
+        animationTimeInterval = 0.1
         addSubview(label)
         addSubview(clockLabel)
         restoreLast()
         scheduleNext()
+        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.render), userInfo: nil, repeats: true)
     }
-    
+
     func restoreLast() {
         fetchingDue = true
         set(quote: UserDefaults.lastQuote)
@@ -130,6 +132,10 @@ class DeveloperExcusesView: ScreenSaverView {
                 self?.set(quote: quotes.first)
             }
         }
+    }
+    
+    func render() {
+        setNeedsDisplay(frame)
     }
 }
 
