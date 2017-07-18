@@ -76,11 +76,12 @@ class DeveloperExcusesView: ScreenSaverView {
         clockLabel.stringValue = NSDate.init().description(with: NSLocale.current)
         
         NSColor.black.setFill()
+        // NSColor.init(red:0.129, green:0.125, blue:0.141, alpha:1).setFill()
         NSRectFill(rect)
     }
     
     func initialize() {
-        animationTimeInterval = 0.1
+        animationTimeInterval = 0.5
         addSubview(label)
         addSubview(clockLabel)
         restoreLast()
@@ -158,7 +159,7 @@ private extension NSTextField {
         label.autoresizingMask = .viewWidthSizable
         label.alignment = .center
         label.stringValue = NSDate.init().description(with: NSLocale.current)
-        label.textColor = .lightGray
+        label.textColor = NSColor.init(white: 1, alpha: 0.6)
         label.font = NSFont(name: "Menlo Regular", size: (isPreview ? 8.0 : 16.0))
         label.backgroundColor = .clear
         label.isEditable = false
