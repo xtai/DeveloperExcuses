@@ -29,7 +29,6 @@ class DeveloperExcusesView: ScreenSaverView {
     var label: NSTextField!
     var clockLabel: NSTextField!
     var fetchingDue = true
-    var counter = 100
     
     override init?(frame: NSRect, isPreview: Bool) {
         super.init(frame: frame, isPreview: isPreview)
@@ -80,7 +79,7 @@ class DeveloperExcusesView: ScreenSaverView {
     }
     
     func initialize() {
-        animationTimeInterval = 0.1
+        animationTimeInterval = 5
         addSubview(label)
         addSubview(clockLabel)
         restoreLast()
@@ -101,14 +100,8 @@ class DeveloperExcusesView: ScreenSaverView {
     }
     
     func scheduleNext() {
-
-        NSLog(self.counter.description)
-        mainQueue.asyncAfter(deadline: .now() + 1) { [weak self] in
-            self?.counter += 1
-            if (self?.counter)! >= 10 {
-                self?.fetchingDue = true
-                self?.counter = 0
-            }
+        mainQueue.asyncAfter(deadline: .now() + 10) { [weak self] in
+            self?.fetchingDue = true
             self?.fetchNext()
         }
     }
