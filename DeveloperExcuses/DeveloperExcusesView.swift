@@ -27,17 +27,21 @@ class DeveloperExcusesView: ScreenSaverView {
     let mainQueue = DispatchQueue.main
     
     var label: NSTextField!
+    var clockLabel: NSTextField!
     var fetchingDue = true
+    var counter = 100
     
     override init?(frame: NSRect, isPreview: Bool) {
         super.init(frame: frame, isPreview: isPreview)
         label = .label(isPreview, bounds: frame)
+        clockLabel = .clockLabel(isPreview, bounds: frame)
         initialize()
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         label = .label(isPreview, bounds: bounds)
+        clockLabel = .clockLabel(isPreview, bounds: bounds)
         initialize()
     }
     
@@ -58,18 +62,27 @@ class DeveloperExcusesView: ScreenSaverView {
         
         var newFrame = label.frame
         newFrame.origin.x = 0
-        newFrame.origin.y = rect.size.height / 2
+        newFrame.origin.y = rect.size.height * 0.5
         newFrame.size.width = rect.size.width
         newFrame.size.height = (label.stringValue as NSString).size(withAttributes: [NSFontAttributeName: label.font!]).height
         label.frame = newFrame
+        
+        var newClockFrame = clockLabel.frame
+        newClockFrame.origin.x = 0
+        newClockFrame.origin.y = rect.size.height * 0.03
+        newClockFrame.size.width = rect.size.width
+        newClockFrame.size.height = (clockLabel.stringValue as NSString).size(withAttributes: [NSFontAttributeName: clockLabel.font!]).height
+        clockLabel.frame = newClockFrame
+        clockLabel.stringValue = NSDate.init().description(with: NSLocale.current)
         
         NSColor.black.setFill()
         NSRectFill(rect)
     }
     
     func initialize() {
-        animationTimeInterval = 0.5
+        animationTimeInterval = 0.1
         addSubview(label)
+        addSubview(clockLabel)
         restoreLast()
         scheduleNext()
     }
@@ -88,8 +101,14 @@ class DeveloperExcusesView: ScreenSaverView {
     }
     
     func scheduleNext() {
-        mainQueue.asyncAfter(deadline: .now() + 10) { [weak self] in
-            self?.fetchingDue = true
+
+        NSLog(self.counter.description)
+        mainQueue.asyncAfter(deadline: .now() + 1) { [weak self] in
+            self?.counter += 1
+            if (self?.counter)! >= 10 {
+                self?.fetchingDue = true
+                self?.counter = 0
+            }
             self?.fetchNext()
         }
     }
@@ -128,7 +147,20 @@ private extension NSTextField {
         label.alignment = .center
         label.stringValue = "Loading…"
         label.textColor = .white
-        label.font = NSFont(name: "Courier", size: (isPreview ? 12.0 : 24.0))
+        label.font = NSFont(name: "Menlo Regular", size: (isPreview ? 12.0 : 24.0))
+        label.backgroundColor = .clear
+        label.isEditable = false
+        label.isBezeled = false
+        return label
+    }
+    
+    static func clockLabel(_ isPreview: Bool, bounds: CGRect) -> NSTextField {
+        let label = NSTextField(frame: bounds)
+        label.autoresizingMask = .viewWidthSizable
+        label.alignment = .center
+        label.stringValue = NSDate.init().description(with: NSLocale.current)
+        label.textColor = .lightGray
+        label.font = NSFont(name: "Menlo Regular", size: (isPreview ? 8.0 : 16.0))
         label.backgroundColor = .clear
         label.isEditable = false
         label.isBezeled = false
