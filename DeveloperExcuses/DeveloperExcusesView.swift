@@ -26,21 +26,21 @@ class DeveloperExcusesView: ScreenSaverView {
     let fetchQueue = DispatchQueue(label: "io.kida.DeveloperExcuses.fetchQueue")
     let mainQueue = DispatchQueue.main
     
-    var label: NSTextField!
+    var quoteLabel: NSTextField!
     var clockLabel: NSTextField!
-    var fetchingDue = true
     var timer: Timer!
+    var ticker = 0
     
     override init?(frame: NSRect, isPreview: Bool) {
         super.init(frame: frame, isPreview: isPreview)
-        label = .label(isPreview, bounds: frame)
+        quoteLabel = .quoteLabel(isPreview, bounds: frame)
         clockLabel = .clockLabel(isPreview, bounds: frame)
         initialize()
     }
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        label = .label(isPreview, bounds: bounds)
+        quoteLabel = .quoteLabel(isPreview, bounds: bounds)
         clockLabel = .clockLabel(isPreview, bounds: bounds)
         initialize()
     }
@@ -53,19 +53,15 @@ class DeveloperExcusesView: ScreenSaverView {
         return false
     }
     
-    override func animateOneFrame() {
-        fetchNext()
-    }
-    
     override func draw(_ rect: NSRect) {
         super.draw(rect)
         
-        var newFrame = label.frame
+        var newFrame = quoteLabel.frame
         newFrame.origin.x = 0
         newFrame.origin.y = rect.size.height * 0.5
         newFrame.size.width = rect.size.width
-        newFrame.size.height = (label.stringValue as NSString).size(withAttributes: [NSFontAttributeName: label.font!]).height
-        label.frame = newFrame
+        newFrame.size.height = (quoteLabel.stringValue as NSString).size(withAttributes: [NSFontAttributeName: quoteLabel.font!]).height
+        quoteLabel.frame = newFrame
         
         var newClockFrame = clockLabel.frame
         newClockFrame.origin.x = 0
@@ -73,7 +69,6 @@ class DeveloperExcusesView: ScreenSaverView {
         newClockFrame.size.width = rect.size.width
         newClockFrame.size.height = (clockLabel.stringValue as NSString).size(withAttributes: [NSFontAttributeName: clockLabel.font!]).height
         clockLabel.frame = newClockFrame
-        clockLabel.stringValue = NSDate.init().description(with: NSLocale.current)
         
         NSColor.black.setFill()
         // NSColor.init(red:0.129, green:0.125, blue:0.141, alpha:1).setFill()
@@ -81,40 +76,31 @@ class DeveloperExcusesView: ScreenSaverView {
     }
     
     func initialize() {
-        animationTimeInterval = 0.5
-        addSubview(label)
+        animationTimeInterval = 1
+        addSubview(quoteLabel)
         addSubview(clockLabel)
-        restoreLast()
-        scheduleNext()
-        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.render), userInfo: nil, repeats: true)
-    }
-
-    func restoreLast() {
-        fetchingDue = true
-        set(quote: UserDefaults.lastQuote)
+        tick()
+        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.tick), userInfo: nil, repeats: true)
     }
     
-    func set(quote: String?) {
-        if let q = quote {
-            label.stringValue = q
-            UserDefaults.lastQuote = q
-            setNeedsDisplay(frame)
+    func tick() {
+        clockLabel.stringValue = NSDate.init().description(with: NSLocale.current)
+        ticker += 1
+        if ticker == 10 || quoteLabel.stringValue == "Loading…" {
+            quoteLabel.stringValue = UserDefaults.lastQuote!
+            fetchNext()
+            ticker = 0
         }
+        setNeedsDisplay(frame)
     }
     
-    func scheduleNext() {
-        mainQueue.asyncAfter(deadline: .now() + 10) { [weak self] in
-            self?.fetchingDue = true
-            self?.fetchNext()
+    func setLastQuote(quote: String?) {
+        if let q = quote {
+            UserDefaults.lastQuote = q
         }
     }
     
     func fetchNext() {
-        if !fetchingDue {
-            return
-        }
-        fetchingDue = false
-        
         fetchQueue.async { [weak self] in
             guard let data = try? Data(contentsOf: .websiteUrl), let string = String(data: data, encoding: .utf8) else {
                 return
@@ -129,19 +115,14 @@ class DeveloperExcusesView: ScreenSaverView {
             }
             
             self?.mainQueue.async { [weak self] in
-                self?.scheduleNext()
-                self?.set(quote: quotes.first)
+                self?.setLastQuote(quote: quotes.first)
             }
         }
-    }
-    
-    func render() {
-        setNeedsDisplay(frame)
     }
 }
 
 private extension NSTextField {
-    static func label(_ isPreview: Bool, bounds: CGRect) -> NSTextField {
+    static func quoteLabel(_ isPreview: Bool, bounds: CGRect) -> NSTextField {
         let label = NSTextField(frame: bounds)
         label.autoresizingMask = .viewWidthSizable
         label.alignment = .center
